@@ -66,6 +66,7 @@ from screens.profile     import show_profile
 from screens.shop        import show_shop
 from screens.leaderboard import show_leaderboard
 from screens.settings    import show_settings
+
 from screens.game_screen import show_game, show_win, show_game_over
 
 # Default session state values
@@ -103,7 +104,7 @@ elif screen == 'game':        show_game()
 elif screen == 'win':         show_win()
 elif screen == 'game_over':   show_game_over()
 elif screen == 'profile':     show_profile()
-elif screen == 'shop':        show_shop()
+elif screen == from screens.guide       import show_guide'shop':        show_shop()
 elif screen == 'leaderboard': show_leaderboard()
 elif screen == 'settings':    show_settings()
 else:
