@@ -11,25 +11,52 @@ st.set_page_config(
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #0a0a1e 0%, #1a0a2e 50%, #0a1a2e 100%);
-    color: white;
+    background: #ffffff;
+    color: #000000;
 }
-[data-testid="stHeader"]    { background: transparent; }
-[data-testid="stSidebar"]   { background: #0a0a2e; }
+[data-testid="stHeader"] { background: #ffffff; }
+p, span, label, div, h1, h2, h3, h4, h5, h6 {
+    color: #000000 !important;
+}
+[data-testid="stMetricLabel"] { color: #0066cc !important; }
+[data-testid="stMetricValue"] { color: #000000 !important; }
+.stRadio label { color: #000000 !important; }
+.stSelectbox label { color: #000000 !important; }
+.stSelectbox div { color: #000000 !important; }
+.stSlider label { color: #000000 !important; }
+.stTabs [data-baseweb="tab"] {
+    color: #000000 !important;
+    background: #f0f0f0;
+}
+.stTabs [aria-selected="true"] {
+    color: #0066cc !important;
+    border-bottom: 2px solid #0066cc;
+}
+.stTextInput input {
+    background: #f0f0f0;
+    color: #000000 !important;
+    border: 1px solid #0066cc;
+    border-radius: 8px;
+}
+.stAlert { color: #000000 !important; }
+.stCaption { color: #555555 !important; }
 .stButton > button {
-    background: linear-gradient(135deg, #1e3a5f, #2d5a8f);
-    color: white !important;
-    border: 1px solid #4a90d9;
+    background: #0066cc;
+    color: #ffffff !important;
+    border: none;
     border-radius: 10px;
     font-weight: bold;
     transition: all 0.2s ease;
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #2d5a8f, #4a90d9);
-    box-shadow: 0 0 15px #4a90d9;
+    background: #0044aa;
+    box-shadow: 0 0 10px #0066cc;
     transform: scale(1.02);
 }
-.stMetric { color: white; }
+[data-testid="stSidebar"] {
+    background: #f5f5f5;
+    color: #000000;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -44,8 +71,8 @@ from screens.game_screen import show_game, show_win, show_game_over
 # Default session state values
 defaults = {
     'screen':       'home',
-    'coins':        100,
-    'gems':         10,
+    'coins':        1000,
+    'gems':         100,
     'difficulty':   1,
     'theme':        'Space',
     'new_game':     True,
