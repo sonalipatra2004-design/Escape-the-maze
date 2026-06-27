@@ -7,7 +7,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Global dark theme CSS
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
@@ -61,43 +60,43 @@ p, span, label, div, h1, h2, h3, h4, h5, h6 {
 """, unsafe_allow_html=True)
 
 # Import all screens
-from screens.home        import show_home
-from screens.profile     import show_profile
-from screens.shop        import show_shop
-from screens.leaderboard import show_leaderboard
-from screens.settings    import show_settings
-from screens.guide       import show_guide
-from screens.daily_reward  import show_daily_reward
-from screens.achievements  import show_achievements, check_achievements
-from screens.statistics    import show_statistics
-from screens.missions      import show_missions
-from screens.tutorial      import show_tutorial
-from screens.pause         import show_pause
-from screens.seasonal      import show_seasonal_banner
-from screens.game_screen import show_game, show_win, show_game_over
+from screens.home         import show_home
+from screens.profile      import show_profile
+from screens.shop         import show_shop
+from screens.leaderboard  import show_leaderboard
+from screens.settings     import show_settings
+from screens.game_screen  import show_game, show_win, show_game_over
+from screens.guide        import show_guide
+from screens.daily_reward import show_daily_reward
+from screens.achievements import show_achievements, check_achievements
+from screens.statistics   import show_statistics
+from screens.missions     import show_missions
+from screens.tutorial     import show_tutorial
+from screens.pause        import show_pause
 
 # Default session state values
 defaults = {
-    'screen':       'home',
-    'coins':        100,
-    'gems':         10,
-    'difficulty':   1,
-    'theme':        'Space',
-    'new_game':     True,
-    'username':     'MazeRunner',
-    'player_level': 1,
-    'xp':           0,
-    'games_played': 0,
-    'wins':         0,
-    'score':        0,
-    'best_time':    '--',
-    'badges':       ['🌟 First Visit'],
-    'avatar_idx':   0,
-    'dark_mode':    True,
-    'maze_size':    'Medium',
-    'colorblind':   False,
-    'large_ui':     False,
-    'message':      '',
+    'screen':              'home',
+    'coins':               100,
+    'gems':                10,
+    'difficulty':          1,
+    'theme':               'Space',
+    'new_game':            True,
+    'username':            'MazeRunner',
+    'player_level':        1,
+    'xp':                  0,
+    'total_xp':            0,
+    'games_played':        0,
+    'wins':                0,
+    'score':               0,
+    'best_time':           '--',
+    'badges':              ['🌟 First Visit'],
+    'avatar_idx':          0,
+    'dark_mode':           False,
+    'maze_size':           'Medium',
+    'colorblind':          False,
+    'large_ui':            False,
+    'message':             '',
     'daily_streak':        1,
     'last_reward_date':    '',
     'unlocked_achievements': [],
@@ -119,8 +118,6 @@ defaults = {
     'claimed_missions':    [],
     'missions_date':       '',
     'won_with_one_life':   False,
-    'total_gems_earned':   0,
-    'total_xp':            0,
     'hints_used':          0,
     'current_hint':        '',
     'show_hint':           False,
@@ -129,12 +126,6 @@ defaults = {
     'manual_theme':        None,
     'wins_week':           0,
     'games_played_week':   0,
-    'powerups_today':      0,
-    'win_streak':          0,
-    'best_win_streak':     0,
-    'fastest_time':        0,
-    'won_with_one_life':   False,
-    'game_history':        [],
 }
 for key, val in defaults.items():
     if key not in st.session_state:
@@ -143,21 +134,21 @@ for key, val in defaults.items():
 # Screen router
 screen = st.session_state.screen
 
-if   screen == 'home':        show_home()
-elif screen == 'game':        show_game()
-elif screen == 'win':         show_win()
-elif screen == 'game_over':   show_game_over()
-elif screen == 'profile':     show_profile()
-elif screen == from screens.guide       import show_guide'shop':        show_shop()
-elif screen == 'leaderboard': show_leaderboard()
-elif screen == 'settings':    show_settings()
-elif screen == 'guide':       show_guide()
-elif screen == 'daily_reward':  show_daily_reward()
-elif screen == 'achievements':  show_achievements()
-elif screen == 'statistics':    show_statistics()
-elif screen == 'missions':      show_missions()
-elif screen == 'tutorial':      show_tutorial()
-elif screen == 'pause':         show_pause()
+if   screen == 'home':         show_home()
+elif screen == 'game':         show_game()
+elif screen == 'win':          show_win()
+elif screen == 'game_over':    show_game_over()
+elif screen == 'profile':      show_profile()
+elif screen == 'shop':         show_shop()
+elif screen == 'leaderboard':  show_leaderboard()
+elif screen == 'settings':     show_settings()
+elif screen == 'guide':        show_guide()
+elif screen == 'daily_reward': show_daily_reward()
+elif screen == 'achievements': show_achievements()
+elif screen == 'statistics':   show_statistics()
+elif screen == 'missions':     show_missions()
+elif screen == 'tutorial':     show_tutorial()
+elif screen == 'pause':        show_pause()
 else:
     st.error(f"Screen not found: {screen}")
     if st.button("🏠 Go Home"):
