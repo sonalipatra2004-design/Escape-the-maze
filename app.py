@@ -67,6 +67,11 @@ from screens.shop        import show_shop
 from screens.leaderboard import show_leaderboard
 from screens.settings    import show_settings
 from screens.guide       import show_guide
+from screens.daily_reward  import show_daily_reward
+from screens.achievements  import show_achievements, check_achievements
+from screens.statistics    import show_statistics
+from screens.missions      import show_missions
+from screens.tutorial      import show_tutorial
 from screens.game_screen import show_game, show_win, show_game_over
 
 # Default session state values
@@ -91,6 +96,28 @@ defaults = {
     'colorblind':   False,
     'large_ui':     False,
     'message':      '',
+    'daily_streak':        1,
+    'last_reward_date':    '',
+    'unlocked_achievements': [],
+    'total_coins_earned':  0,
+    'total_gems_earned':   0,
+    'fastest_time':        0,
+    'total_time_played':   0,
+    'avg_moves':           0,
+    'game_history':        [],
+    'win_streak':          0,
+    'best_win_streak':     0,
+    'total_powerups':      0,
+    'items_bought':        0,
+    'favourite_powerup':   'None',
+    'tutorial_step':       0,
+    'games_played_today':  0,
+    'wins_today':          0,
+    'powerups_today':      0,
+    'claimed_missions':    [],
+    'missions_date':       '',
+    'won_with_one_life':   False,
+    'total_gems_earned':   0,
 }
 for key, val in defaults.items():
     if key not in st.session_state:
@@ -108,6 +135,11 @@ elif screen == from screens.guide       import show_guide'shop':        show_sho
 elif screen == 'leaderboard': show_leaderboard()
 elif screen == 'settings':    show_settings()
 elif screen == 'guide':       show_guide()
+elif screen == 'daily_reward':  show_daily_reward()
+elif screen == 'achievements':  show_achievements()
+elif screen == 'statistics':    show_statistics()
+elif screen == 'missions':      show_missions()
+elif screen == 'tutorial':      show_tutorial()
 else:
     st.error(f"Screen not found: {screen}")
     if st.button("🏠 Go Home"):
