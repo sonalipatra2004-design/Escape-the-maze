@@ -34,18 +34,15 @@ def get_level_title(level):
     return LEVEL_TITLES[idx]
 
 def award_xp(amount, reason=""):
-    """Award XP and check for level up"""
     current_xp    = st.session_state.get('total_xp', 0)
     current_level = get_level_from_xp(current_xp)
-
-    new_xp    = current_xp + amount
-    new_level = get_level_from_xp(new_xp)
+    new_xp        = current_xp + amount
+    new_level     = get_level_from_xp(new_xp)
 
     st.session_state.total_xp     = new_xp
     st.session_state.player_level = new_level
     st.session_state.xp           = new_xp
 
-    # Level up!
     if new_level > current_level:
         bonus_coins = new_level * 50
         st.session_state.coins = \
@@ -59,18 +56,14 @@ def award_xp(amount, reason=""):
     return False, new_level
 
 def calculate_game_xp(moves, time_seconds, difficulty, won):
-    """Calculate XP earned from a game"""
     if not won:
         return max(5, difficulty * 3)
-
-    base_xp   = difficulty * 20
+    base_xp    = difficulty * 20
     time_bonus = max(0, 50 - (time_seconds // 10))
     move_bonus = max(0, 30 - (moves // 5))
-    total_xp  = base_xp + time_bonus + move_bonus
-    return total_xp
+    return base_xp + time_bonus + move_bonus
 
 def show_xp_bar():
-    """Show XP progress bar — use in profile and game screens"""
     total_xp = st.session_state.get('total_xp', 0)
     level    = get_level_from_xp(total_xp)
     title    = get_level_title(level)
@@ -79,9 +72,9 @@ def show_xp_bar():
         min(level - 1, len(LEVEL_THRESHOLDS) - 1)]
     next_threshold = get_xp_for_next_level(level)
 
-    xp_in_level   = total_xp - current_threshold
-    xp_needed     = next_threshold - current_threshold
-    progress      = min(xp_in_level / max(xp_needed, 1), 1.0)
+    xp_in_level = total_xp - current_threshold
+    xp_needed   = max(next_threshold - current_threshold, 1)
+    progress    = min(xp_in_level / xp_needed, 1.0)
 
     st.markdown(f"**Level {level} — {title}**")
     st.progress(progress,
