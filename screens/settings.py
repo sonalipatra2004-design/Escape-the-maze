@@ -1,3 +1,4 @@
+from screens.seasonal import show_seasonal_settings
 import streamlit as st
 
 def show_settings():
@@ -20,12 +21,15 @@ def show_settings():
     dark_mode = st.toggle("Dark Mode",
                            value=st.session_state.get('dark_mode', True))
     st.session_state.dark_mode = dark_mode
-
+   
     theme = st.selectbox("Default Maze Theme",
                          ['Space', 'Forest', 'Desert', 'Ice', 'Lava', 'Haunted'],
                          index=0)
     st.session_state.theme = theme
 
+    st.markdown("---")
+    show_seasonal_settings()
+    
     st.markdown("---")
     st.subheader("♿ Accessibility")
     colorblind = st.toggle("Color-blind Mode",
