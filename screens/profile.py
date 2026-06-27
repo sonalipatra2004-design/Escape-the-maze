@@ -1,4 +1,5 @@
-import streamlit as st
+from screens.xp_system 
+import show_xp_bar, get_level_titleimport streamlit as st
 
 def show_profile():
     st.title("👤 Profile")
@@ -20,9 +21,9 @@ def show_profile():
 
         level = st.session_state.get('player_level', 1)
         xp    = st.session_state.get('xp', 0)
-        st.write(f"**Level:** {level}")
-        st.progress(min(xp / 100, 1.0), text=f"XP: {xp} / 100")
-
+        title = get_level_title(level)
+        st.write(f"**Level {level}** — {title}")
+        show_xp_bar()
         c1, c2 = st.columns(2)
         c1.metric("🪙 Coins", st.session_state.get('coins', 0))
         c2.metric("💎 Gems",  st.session_state.get('gems', 0))
