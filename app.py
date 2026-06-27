@@ -72,6 +72,8 @@ from screens.achievements  import show_achievements, check_achievements
 from screens.statistics    import show_statistics
 from screens.missions      import show_missions
 from screens.tutorial      import show_tutorial
+from screens.pause         import show_pause
+from screens.seasonal      import show_seasonal_banner
 from screens.game_screen import show_game, show_win, show_game_over
 
 # Default session state values
@@ -118,6 +120,21 @@ defaults = {
     'missions_date':       '',
     'won_with_one_life':   False,
     'total_gems_earned':   0,
+    'total_xp':            0,
+    'hints_used':          0,
+    'current_hint':        '',
+    'show_hint':           False,
+    'xp_earned_last':      0,
+    'level_up_message':    '',
+    'manual_theme':        None,
+    'wins_week':           0,
+    'games_played_week':   0,
+    'powerups_today':      0,
+    'win_streak':          0,
+    'best_win_streak':     0,
+    'fastest_time':        0,
+    'won_with_one_life':   False,
+    'game_history':        [],
 }
 for key, val in defaults.items():
     if key not in st.session_state:
@@ -140,6 +157,7 @@ elif screen == 'achievements':  show_achievements()
 elif screen == 'statistics':    show_statistics()
 elif screen == 'missions':      show_missions()
 elif screen == 'tutorial':      show_tutorial()
+elif screen == 'pause':         show_pause()
 else:
     st.error(f"Screen not found: {screen}")
     if st.button("🏠 Go Home"):
