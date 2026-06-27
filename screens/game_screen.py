@@ -5,6 +5,10 @@ import matplotlib.patches as patches
 from game.maze_generator import MazeGenerator
 from game.player import Player
 from game.enemies import Enemy
+from screens.keyboard  import inject_keyboard_controls, show_keyboard_help
+from screens.ai_hint   import show_hint_button
+from screens.xp_system import award_xp, calculate_game_xp, show_xp_bar
+from screens.seasonal  import get_seasonal_colors
 import time
 
 THEME_COLORS = {
@@ -142,6 +146,49 @@ def handle_move(direction):
                 st.session_state.get('coins', 0) + coins_earned
             st.session_state.wins = \
                 st.session_state.get('wins', 0) + 1
+            # Award XP on win
+import time
+elapsed = int(time.time() -
+    st.session_state.get('start_time', time.time()))
+moves   = st.session_state.get('move_count', 0)
+diff    = st.session_state.get('difficulty', 1)
+xp_earned = calculate_game_xp(moves, elapsed, diff, True)
+leveled_up, new_level = award_xp(xp_earned)
+st.session_state.xp_earned_last = xp_earned
+
+# Update statistics
+st.session_state.total_coins_earned = \
+    st.session_state.get('total_coins_earned', 0) + \
+    max(10, 100 - moves)
+if elapsed > 0:
+    prev_fastest = st.session_state.get('fastest_time', 9999)
+    if elapsed < prev_fastest or prev_fastest == 0:
+        st.session_state.fastest_time = elapsed
+
+# Win streak
+st.session_state.win_streak = \
+    st.session_state.get('win_streak', 0) + 1
+best = st.session_state.get('best_win_streak', 0)
+if st.session_state.win_streak > best:
+    st.session_state.best_win_streak = \
+        st.session_state.win_streak
+
+# Won with one life check
+player = st.session_state.player
+if player.lives == 1:
+    st.session_state.won_with_one_life = True
+
+# Add to game history
+history = st.session_state.get('game_history', [])
+history.append({
+    'Result':     '✅ Win',
+    'Level':      diff,
+    'Moves':      moves,
+    'Time':       f"{elapsed//60:02d}:{elapsed%60:02d}",
+    'XP Earned':  xp_earned,
+    'Coins':      max(10, 100 - moves),
+})
+st.session_state.game_history = history[-10:]
             st.session_state.games_played = \
                 st.session_state.get('games_played', 0) + 1
 
@@ -170,6 +217,13 @@ def show_game():
 
     # Maze
     st.pyplot(draw_maze(), use_container_width=True)
+    
+    # Keyboard controls
+    inject_keyboard_controls()
+    show_keyboard_help()
+
+    # AI Hint button
+    show_hint_button()
 
     # Controls
     large = st.session_state.get('large_ui', False)
