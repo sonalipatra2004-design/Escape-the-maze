@@ -57,6 +57,9 @@ def show_home():
         if st.button("⚙️  Settings",       use_container_width=True):
             st.session_state.screen = 'settings'
             st.rerun()
+        if st.button("❓  How To Play",    use_container_width=True):
+            st.session_state.screen = 'guide'
+            st.rerun()
 
     st.markdown("---")
     c1, c2 = st.columns(2)
