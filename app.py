@@ -72,8 +72,8 @@ from screens.game_screen import show_game, show_win, show_game_over
 # Default session state values
 defaults = {
     'screen':       'home',
-    'coins':        1000,
-    'gems':         100,
+    'coins':        100,
+    'gems':         10,
     'difficulty':   1,
     'theme':        'Space',
     'new_game':     True,
