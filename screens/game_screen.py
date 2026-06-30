@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import time
@@ -45,7 +44,7 @@ def init_game():
     st.session_state.message     = ''
     st.session_state.hints_used  = 0
     st.session_state.show_hint   = False
-    st.session_state.last_move   = None
+    st.session_state.pending_move = None
 
 def draw_maze_image():
     maze     = st.session_state.maze
@@ -59,8 +58,6 @@ def draw_maze_image():
     )
 
     rows, cols = maze.shape
-
-    # Use a fixed DPI and size so image never changes size
     fig, ax = plt.subplots(figsize=(6, 6), dpi=80)
     fig.patch.set_facecolor(theme['bg'])
     ax.set_facecolor(theme['bg'])
@@ -82,13 +79,13 @@ def draw_maze_image():
                 )
             ax.add_patch(rect)
 
-    # START marker
+    # START
     ax.text(1.5, rows - 1 - 0.5, 'START',
             ha='center', va='center',
             fontsize=4, color='green',
             fontweight='bold')
 
-    # EXIT — bright green box
+    # EXIT
     er, ec = exit_pos
     exit_rect = patches.Rectangle(
         (ec, rows - er - 1), 1, 1,
@@ -129,18 +126,18 @@ def draw_maze_image():
     # Enemies
     for enemy in enemies:
         warn = patches.Circle(
-            (enemy.col + 0.5, rows - enemy.row - 0.5), 0.38,
-            facecolor='#FF0000', alpha=0.3
+            (enemy.col + 0.5, rows - enemy.row - 0.5),
+            0.38, facecolor='#FF0000', alpha=0.3
         )
         ax.add_patch(warn)
         ax.text(enemy.col + 0.5, rows - enemy.row - 0.5,
                 enemy.info['emoji'],
                 ha='center', va='center', fontsize=12)
 
-    # Player — bright green circle behind
+    # Player
     player_bg = patches.Circle(
-        (player.col + 0.5, rows - player.row - 0.5), 0.4,
-        facecolor='#00FF00', alpha=0.6
+        (player.col + 0.5, rows - player.row - 0.5),
+        0.4, facecolor='#00FF00', alpha=0.6
     )
     ax.add_patch(player_bg)
     ax.text(player.col + 0.5, rows - player.row - 0.5,
@@ -150,8 +147,6 @@ def draw_maze_image():
     ax.set_ylim(0, rows)
     ax.set_aspect('equal')
     ax.axis('off')
-
-    # Remove all padding/margins
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
     return fig
 
@@ -175,11 +170,11 @@ def get_ai_hint():
             dr = next_step[0] - start[0]
             dc = next_step[1] - start[1]
             steps = len(path) - 1
-            if dr == -1:   direction = "⬆️ Move UP"
-            elif dr == 1:  direction = "⬇️ Move DOWN"
-            elif dc == -1: direction = "⬅️ Move LEFT"
-            else:          direction = "➡️ Move RIGHT"
-            return f"{direction} — {steps} steps to exit"
+            if dr == -1:   d = "⬆️ Move UP"
+            elif dr == 1:  d = "⬇️ Move DOWN"
+            elif dc == -1: d = "⬅️ Move LEFT"
+            else:          d = "➡️ Move RIGHT"
+            return f"{d} — {steps} steps to exit"
         for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
             nr, nc = r+dr, c+dc
             if (0 <= nr < maze.shape[0] and
@@ -187,11 +182,10 @@ def get_ai_hint():
                 maze[nr][nc] == 0 and
                 (nr, nc) not in visited):
                 visited.add((nr, nc))
-                queue.append(((nr, nc), path + [(nr, nc)]))
+                queue.append(((nr,nc), path+[(nr,nc)]))
     return "Keep exploring!"
 
 def process_move(direction):
-    """Process move logic WITHOUT calling st.rerun()"""
     player   = st.session_state.player
     maze     = st.session_state.maze
     enemies  = st.session_state.enemies
@@ -200,14 +194,13 @@ def process_move(direction):
 
     moved = player.move(direction, maze)
     if not moved:
-        st.session_state.message = "🧱 Wall! Try a different direction."
+        st.session_state.message = "🧱 Wall! Try another direction."
         return
 
     st.session_state.move_count += 1
     st.session_state.message = ''
     pos = player.get_position()
 
-    # Power-up collection
     for i, (pu_pos, pu_type) in enumerate(powerups):
         if pos == pu_pos:
             msg = player.collect_powerup(pu_type)
@@ -223,7 +216,6 @@ def process_move(direction):
                     e.freeze()
             break
 
-    # Enemy movement
     for enemy in enemies:
         enemy.move(maze, pos)
         if enemy.touches_player(pos):
@@ -238,10 +230,9 @@ def process_move(direction):
                 return
             else:
                 st.session_state.message = (
-                    f"💥 Enemy hit you! {player.lives} lives left!"
+                    f"💥 Hit! {player.lives} lives left!"
                 )
 
-    # Check win
     if pos == exit_pos:
         st.session_state.game_status = 'won'
         st.session_state.screen      = 'win'
@@ -250,7 +241,6 @@ def process_move(direction):
                            st.session_state.get('start_time', time.time()))
         diff         = st.session_state.get('difficulty', 1)
         coins_earned = max(10, 100 - moves)
-
         st.session_state.coins = (
             st.session_state.get('coins', 0) + coins_earned
         )
@@ -278,8 +268,8 @@ def process_move(direction):
             st.session_state.won_with_one_life = True
         xp_earned = (
             (diff * 20) +
-            max(0, 50 - (elapsed // 10)) +
-            max(0, 30 - (moves // 5))
+            max(0, 50-(elapsed//10)) +
+            max(0, 30-(moves//5))
         )
         st.session_state.xp_earned_last = xp_earned
         st.session_state.total_xp = (
@@ -296,15 +286,31 @@ def process_move(direction):
         })
         st.session_state.game_history = history[-10:]
 
-@st.fragment
-def game_fragment():
-    """
-    This fragment reruns ONLY itself — not the whole page.
-    This stops the blinking/squeezing effect completely.
-    """
+def show_game():
+    if st.session_state.get('new_game', True):
+        init_game()
+        st.session_state.new_game = False
+
+    # Check pending move FIRST before drawing
+    # This way we process move, update state,
+    # then draw the updated maze — no double rerun
+    pending = st.session_state.get('pending_move', None)
+    if pending:
+        st.session_state.pending_move = None
+        process_move(pending)
+        # If game ended go to new screen
+        if st.session_state.get('screen') != 'game':
+            st.rerun()
+
     player = st.session_state.player
 
-    # ── HUD ──────────────────────────────────────
+    # Legend
+    st.markdown(
+        "🧑 You &nbsp;|&nbsp; 🚪 EXIT &nbsp;|&nbsp; "
+        "👻🤖 Enemy &nbsp;|&nbsp; ⚡🛡️❄️💚 Power-up"
+    )
+
+    # HUD
     h1, h2, h3, h4 = st.columns(4)
     h1.write('❤️' * max(player.lives, 0) or '💀')
     h2.metric("🪙", player.coins)
@@ -313,68 +319,63 @@ def game_fragment():
     h3.metric("⏱️", f"{elapsed//60:02d}:{elapsed%60:02d}")
     h4.metric("🎯", st.session_state.get('move_count', 0))
 
-    # ── MESSAGE ──────────────────────────────────
+    # Message
     msg = st.session_state.get('message', '')
     if msg:
         st.warning(msg)
 
-    # ── HINT ─────────────────────────────────────
+    # Hint
     if st.session_state.get('show_hint', False):
         st.success(
             f"💡 {st.session_state.get('current_hint', '')}"
         )
 
-    # ── MAZE IMAGE ───────────────────────────────
-    fig = draw_maze_image()
-    st.pyplot(fig, use_container_width=True)
-    plt.close(fig)
+    # Maze — fixed container so it never resizes
+    maze_container = st.container()
+    with maze_container:
+        fig = draw_maze_image()
+        st.pyplot(fig, use_container_width=True)
+        plt.close(fig)
 
-    # ── GOAL REMINDER ────────────────────────────
     st.info("🎯 Goal: Reach the 🚪 GREEN door to WIN!")
 
-    # ── CONTROL BUTTONS ──────────────────────────
-    st.markdown("#### 🕹️ Move")
+    # Controls — set pending_move then rerun ONCE
+    st.markdown("#### 🕹️ Move Your Player")
 
     _, cu, _ = st.columns([2, 1, 2])
     with cu:
-        up = st.button("⬆️", use_container_width=True,
-                       key="btn_up")
+        if st.button("⬆️ UP", use_container_width=True,
+                     key="btn_up"):
+            st.session_state.pending_move = 'UP'
+            st.rerun()
 
     cl, cm, cr = st.columns(3)
     with cl:
-        left = st.button("⬅️", use_container_width=True,
-                         key="btn_left")
+        if st.button("⬅️ LEFT", use_container_width=True,
+                     key="btn_left"):
+            st.session_state.pending_move = 'LEFT'
+            st.rerun()
     with cm:
-        pause = st.button("⏸️", use_container_width=True,
-                          key="btn_pause")
+        if st.button("⏸️ PAUSE", use_container_width=True,
+                     key="btn_pause"):
+            st.session_state.screen = 'pause'
+            st.rerun()
     with cr:
-        right = st.button("➡️", use_container_width=True,
-                          key="btn_right")
+        if st.button("RIGHT ➡️", use_container_width=True,
+                     key="btn_right"):
+            st.session_state.pending_move = 'RIGHT'
+            st.rerun()
 
     _, cd, _ = st.columns([2, 1, 2])
     with cd:
-        down = st.button("⬇️", use_container_width=True,
-                         key="btn_down")
+        if st.button("⬇️ DOWN", use_container_width=True,
+                     key="btn_down"):
+            st.session_state.pending_move = 'DOWN'
+            st.rerun()
 
-    # Process button presses
-    if up:
-        process_move('UP')
-        st.rerun(scope="fragment")
-    if down:
-        process_move('DOWN')
-        st.rerun(scope="fragment")
-    if left:
-        process_move('LEFT')
-        st.rerun(scope="fragment")
-    if right:
-        process_move('RIGHT')
-        st.rerun(scope="fragment")
-    if pause:
-        st.session_state.screen = 'pause'
-        st.rerun()
-
-    # ── HINT BUTTON ──────────────────────────────
     st.markdown("---")
+
+    # Hints
     hints_used = st.session_state.get('hints_used', 0)
     max_hints  = 3
     col1, col2 = st.columns(2)
@@ -389,52 +390,30 @@ def game_fragment():
                 st.session_state.current_hint = hint
                 st.session_state.hints_used   = hints_used + 1
                 st.session_state.show_hint    = True
-                st.rerun(scope="fragment")
+                st.rerun()
         else:
             st.caption("💡 No hints left!")
     with col2:
         if st.button("🏠 Home",
                      use_container_width=True,
-                     key="btn_home"):
+                     key="btn_home_game"):
             st.session_state.screen = 'home'
             st.rerun()
 
-    # Active power-ups
     if player.active_powerups:
         st.success(
             f"⚡ Active: {', '.join(player.active_powerups)}"
         )
 
-    # Quick rules
     with st.expander("❓ How to play"):
         st.markdown("""
-        1. 🧑 = You. Move using arrow buttons above
+        1. 🧑 = You — tap arrow buttons to move
         2. Light cells = paths ✅ Dark cells = walls ❌
-        3. Reach 🚪 green door = WIN!
-        4. Avoid 👻🤖 enemies or lose ❤️
-        5. Collect ⚡🛡️❄️💚 power-ups for help
-        6. Tap 💡 Hint if stuck!
+        3. Reach 🚪 green door = WIN! 🎉
+        4. Avoid 👻🤖 enemies or lose ❤️ a life
+        5. Walk over ⚡🛡️❄️💚 to collect power-ups
+        6. Tap 💡 Hint if you are stuck!
         """)
-
-    # Check if game ended — redirect whole page
-    if st.session_state.get('screen') in ['win', 'game_over']:
-        st.rerun()
-
-def show_game():
-    if st.session_state.get('new_game', True):
-        init_game()
-        st.session_state.new_game = False
-
-    # Legend above the fragment
-    st.markdown("""
-    🧑 You &nbsp;|&nbsp;
-    🚪 EXIT &nbsp;|&nbsp;
-    👻🤖 Enemy &nbsp;|&nbsp;
-    ⚡🛡️❄️💚 Power-up
-    """)
-
-    # Call the fragment — only THIS reruns on button click
-    game_fragment()
 
 def show_win():
     st.balloons()
@@ -488,7 +467,7 @@ def show_game_over():
     c2.metric("Lives", 0)
     c3.metric("Time",
               f"{elapsed//60:02d}:{elapsed%60:02d}")
-    st.info("💡 Tip: Use 💡 hints and ⚡ power-ups next time!")
+    st.info("💡 Tip: Use hints and power-ups next time!")
     st.markdown("---")
     col1, col2 = st.columns(2)
     if col1.button("🔄 Try Again",
